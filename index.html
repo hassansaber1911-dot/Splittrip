@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SplitTrip</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">ST</div>
+        <div>
+          <div class="brand-name">SplitTrip</div>
+          <div class="brand-sub">Shared travel expenses</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-link active" data-view="home">Home</button>
+        <button class="nav-link" data-view="trips">Trips</button>
+        <button class="nav-link" data-view="balances">Balances</button>
+        <button class="nav-link" data-view="history">History</button>
+      </nav>
+
+      <div class="profile">
+        <div class="avatar">HM</div>
+        <div>
+          <div class="profile-name">Hassan Mohamed</div>
+          <div class="profile-role">Main user</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Home</h1>
+          <p id="pageSubtitle">Track what everyone paid, consumed, and still owes.</p>
+        </div>
+        <button class="btn primary" id="newTripBtn">+ New Trip</button>
+      </header>
+
+      <section id="homeView" class="view active"></section>
+      <section id="tripsView" class="view"></section>
+      <section id="balancesView" class="view"></section>
+      <section id="historyView" class="view"></section>
+      <section id="tripDetailView" class="view"></section>
+      <section id="memberDetailView" class="view"></section>
+    </main>
+  </div>
+
+  <div id="modalRoot"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
