@@ -21,3 +21,13 @@ EGP, SAR, USD, INR
 Core product rule:
 Payments are NEVER automatically divided among trip members.
 Consumption is calculated only from the items explicitly assigned to each person.
+
+
+Mobile UI update:
+- Sticky compact mobile header
+- 4-column navigation that fits the screen
+- Responsive trip tabs
+- Better action-button wrapping
+- Single-column cards/forms on mobile
+- Mobile-friendly tables and bottom-sheet modals
+- 16px form inputs to avoid mobile browser zoom
