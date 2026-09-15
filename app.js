@@ -1,80 +1,11 @@
 
-const STORAGE_KEY = "splittrip_v1_data";
+const STORAGE_KEY = "splittrip_v2_data";
 
 const seed = {
-  mainUser: "Hassan Mohamed",
+  mainUser: "",
+  profileConfigured: false,
   currencies: ["EGP","SAR","USD","INR"],
-  trips: [
-    {
-      id:"trip-dubai",
-      name:"Dubai Trip",
-      destination:"Dubai",
-      startDate:"2026-09-12",
-      endDate:"2026-09-16",
-      currency:"SAR",
-      status:"Active",
-      members:["Hassan Mohamed","Ahmed","Mohamed","Ali"],
-      expenses:[
-        {
-          id:"exp-dinner",
-          name:"Restaurant Dinner",
-          merchant:"Marina Grill",
-          date:"2026-09-12",
-          time:"20:30",
-          category:"Food",
-          currency:"SAR",
-          items:[
-            {name:"Burger",price:100,consumers:["Ahmed"]},
-            {name:"Pizza",price:200,consumers:["Hassan Mohamed","Mohamed"]},
-            {name:"Shared Appetizer",price:200,consumers:["Hassan Mohamed","Ahmed","Mohamed","Ali"]},
-            {name:"Dessert",price:100,consumers:["Ali"]}
-          ],
-          taxAmount:0,
-          serviceFee:0,
-          otherFee:0,
-          payers:[
-            {name:"Hassan Mohamed",amount:400},
-            {name:"Ahmed",amount:200}
-          ],
-          createdAt:"2026-09-12T20:35:00"
-        }
-      ],
-      settlements:[]
-    },
-    {
-      id:"trip-cairo",
-      name:"Cairo Weekend",
-      destination:"Cairo",
-      startDate:"2026-08-01",
-      endDate:"2026-08-03",
-      currency:"EGP",
-      status:"Settled",
-      members:["Hassan Mohamed","Ahmed","Mohamed"],
-      expenses:[
-        {
-          id:"exp-cairo-1",
-          name:"Dinner",
-          merchant:"Downtown Bistro",
-          date:"2026-08-01",
-          time:"21:00",
-          category:"Food",
-          currency:"EGP",
-          items:[
-            {name:"Meal A",price:600,consumers:["Hassan Mohamed"]},
-            {name:"Meal B",price:600,consumers:["Ahmed"]},
-            {name:"Meal C",price:600,consumers:["Mohamed"]}
-          ],
-          taxAmount:0,serviceFee:0,otherFee:0,
-          payers:[{name:"Hassan Mohamed",amount:1800}],
-          createdAt:"2026-08-01T21:10:00"
-        }
-      ],
-      settlements:[
-        {id:"set-c1",from:"Ahmed",to:"Hassan Mohamed",amount:600,date:"2026-08-02",time:"10:00",status:"Confirmed",note:"Dinner"},
-        {id:"set-c2",from:"Mohamed",to:"Hassan Mohamed",amount:600,date:"2026-08-02",time:"10:05",status:"Confirmed",note:"Dinner"}
-      ]
-    }
-  ]
+  trips: []
 };
 
 let state = loadState();
@@ -90,10 +21,67 @@ function loadState(){
 function saveState(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
+
+function trackEvent(name, params={}){
+  if(typeof window.gtag === "function") window.gtag("event", name, params);
+}
+
+function initials(name){
+  const parts=String(name||"").trim().split(/\s+/).filter(Boolean);
+  return (parts.slice(0,2).map(p=>p[0]).join("") || "?").toUpperCase();
+}
+
+function renderProfile(){
+  const name=state.mainUser || "Set your name";
+  const nameEl=document.querySelector(".profile-name");
+  const avatarEl=document.querySelector(".avatar");
+  if(nameEl) nameEl.textContent=name;
+  if(avatarEl) avatarEl.textContent=initials(state.mainUser);
+}
+
+function openProfileModal(firstTime=false){
+  modal(`
+    <div class="modal-head"><h2>${firstTime?"Welcome to SplitTrip":"Edit Profile"}</h2>${firstTime?"":`<button class="icon-btn" onclick="closeModal()">×</button>`}</div>
+    <div class="modal-body">
+      ${firstTime?`<div class="notice">Before you start, tell us what we should call you. You can change this later.</div>`:""}
+      <div class="form-group" style="margin-top:14px"><label>Your Name</label><input id="profileName" placeholder="Enter your name" value="${escAttr(state.mainUser||"")}"></div>
+      <div id="profileError"></div>
+    </div>
+    <div class="modal-foot">${firstTime?"":`<button class="btn" onclick="closeModal()">Cancel</button>`}<button class="btn primary" onclick="saveProfile(${firstTime})">Save</button></div>
+  `);
+  setTimeout(()=>document.getElementById("profileName")?.focus(),0);
+}
+
+function saveProfile(firstTime=false){
+  const input=document.getElementById("profileName");
+  const newName=(input?.value||"").trim();
+  if(!newName){document.getElementById("profileError").innerHTML=`<div class="error">Please enter your name.</div>`;return;}
+  const oldName=state.mainUser;
+  state.mainUser=newName;
+  state.profileConfigured=true;
+  // Renaming the profile updates this user's name inside existing trips without touching other members.
+  if(oldName && oldName!==newName){
+    state.trips.forEach(t=>{
+      t.members=t.members.map(m=>m===oldName?newName:m);
+      t.expenses.forEach(e=>{
+        e.items.forEach(i=>i.consumers=(i.consumers||[]).map(m=>m===oldName?newName:m));
+        e.payers=(e.payers||[]).map(p=>({...p,name:p.name===oldName?newName:p.name}));
+      });
+      (t.settlements||[]).forEach(x=>{ if(x.from===oldName)x.from=newName; if(x.to===oldName)x.to=newName; });
+    });
+  }
+  saveState();
+  renderProfile();
+  trackEvent(firstTime?"profile_created":"profile_updated");
+  closeModal();
+  renderAll();
+}
 function resetState(){
   localStorage.removeItem(STORAGE_KEY);
   state = clone(seed);
   renderAll();
+  renderProfile();
+  openProfileModal(true);
 }
 
 function uid(prefix="id"){
@@ -217,6 +205,7 @@ function setView(view,title,subtitle){
 }
 
 function renderAll(){
+  renderProfile();
   renderHome();
   renderTrips();
   renderBalances();
@@ -584,7 +573,7 @@ function openTripModal(){
         </div>
         <div class="form-group full">
           <label>Members</label>
-          <div class="notice">Hassan Mohamed is automatically included. Add other friends separated by commas.</div>
+          <div class="notice">You (${state.mainUser}) are included in this trip. Add other friends separated by commas.</div>
           <input id="tripMembers" placeholder="Ahmed, Mohamed, Ali">
         </div>
       </div>
@@ -613,7 +602,9 @@ function createTrip(){
     members:[...new Set([state.mainUser,...extras])],expenses:[],settlements:[]
   };
   state.trips.unshift(t);
-  saveState();closeModal();renderAll();openTrip(t.id);
+  saveState();
+  trackEvent("trip_created", {currency:t.currency, member_count:t.members.length});
+  closeModal();renderAll();openTrip(t.id);
 }
 
 function openMemberModal(tripId){
@@ -631,7 +622,7 @@ function addMember(tripId){
   const n=document.getElementById("memberName").value.trim();
   if(!n){document.getElementById("memberError").innerHTML=`<div class="error">Enter a name.</div>`;return;}
   if(t.members.includes(n)){document.getElementById("memberError").innerHTML=`<div class="error">This member already exists.</div>`;return;}
-  t.members.push(n);saveState();closeModal();renderTripDetail(tripId,"members");renderAll();
+  t.members.push(n);saveState();trackEvent("member_added");closeModal();renderTripDetail(tripId,"members");renderAll();
 }
 
 function openExpenseModal(tripId){
@@ -771,7 +762,9 @@ function commitExpense(expJson,tripId){
   const t=tripById(tripId);
   t.expenses.push(exp);
   t.status="Active";
-  saveState();closeModal();renderAll();openTrip(tripId,"overview");
+  saveState();
+  trackEvent("expense_added", {currency:t.currency, item_count:exp.items.length, payer_count:exp.payers.length});
+  closeModal();renderAll();openTrip(tripId,"overview");
 }
 
 function showExpenseDetail(tripId,expId){
@@ -830,13 +823,13 @@ function saveSettlement(tripId){
   }
   t.settlements=t.settlements||[];
   t.settlements.push({id:uid("set"),from,to,amount,date,time,status:"Pending Confirmation",note});
-  saveState();closeModal();renderAll();openTrip(tripId,"settlements");
+  saveState();trackEvent("settlement_created", {currency:t.currency});closeModal();renderAll();openTrip(tripId,"settlements");
 }
 function confirmSettlement(tripId,setId){
   const t=tripById(tripId);
   const s=t.settlements.find(x=>x.id===setId);
   if(s)s.status="Confirmed";
-  saveState();renderAll();openTrip(tripId,"settlements");
+  saveState();trackEvent("settlement_confirmed", {currency:t.currency});renderAll();openTrip(tripId,"settlements");
 }
 
 function modal(content){
@@ -849,6 +842,9 @@ function escAttr(s){return String(s).replaceAll("&","&amp;").replaceAll('"',"&qu
 
 renderAll();
 goHome();
+if(!state.profileConfigured || !state.mainUser){
+  setTimeout(()=>openProfileModal(true),0);
+}
 
 window.addEventListener("keydown",e=>{
   if(e.key==="Escape")closeModal();

@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WDHB6ETLJE"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-WDHB6ETLJE');
-</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SplitTrip</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WDHB6ETLJE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-WDHB6ETLJE');
+  </script>
 </head>
 <body>
   <div class="app-shell">
@@ -33,13 +32,13 @@
         <button class="nav-link" data-view="history">History</button>
       </nav>
 
-      <div class="profile">
-        <div class="avatar">HM</div>
+      <button class="profile profile-button" type="button" onclick="openProfileModal(false)" title="Edit profile">
+        <div class="avatar">?</div>
         <div>
-          <div class="profile-name">Hassan Mohamed</div>
-          <div class="profile-role">Main user</div>
+          <div class="profile-name">Set your name</div>
+          <div class="profile-role">Edit profile</div>
         </div>
-      </div>
+      </button>
     </aside>
 
     <main class="main">
