@@ -1,52 +1,46 @@
+![SplitTrip — shared expenses](assets/cover.svg)
+
 # SplitTrip
 
-**A shared-expense product prototype that separates who paid from who actually consumed.**
+**Split what people actually consumed, independently of who paid.**
 
-[Try the live prototype](https://hassansaber1911-dot.github.io/Splittrip/)
+[**Live Demo →**](https://hassansaber1911-dot.github.io/Splittrip/)
 
-## Product Overview
-Splitting a restaurant bill or trip expense becomes inaccurate when different people pay and consume different things. SplitTrip models those two facts separately and calculates the final balances from actual participation.
+## Product Preview
 
-## The Problem
-Most simple bill-splitting approaches assume everyone consumed the same amount. Real group spending is messier: one person may pay for everyone, several people may contribute to one bill, some members may skip individual items, and tax or service fees still need to be allocated fairly.
+Real screenshots from the live application using sample participants and amounts.
 
-## Core Experience
-- Create trips and add members
-- Record shared expenses and individual items
-- Select the consumers of each item
-- Support multiple payers on one expense
-- Distribute tax, service charges, and other fees
-- Calculate member balances and who owes whom
-- Record full or partial settlements with confirmation
-- Review member expense history and previous trips
+### Review payment versus consumption
+![SplitTrip review: two payers and three consumers](assets/review.jpg)
 
-## Core Product Rule
-**Paid ≠ Consumed.**
+### See who owes whom
+![SplitTrip calculated member balances](assets/balances.jpg)
 
-For every expense, SplitTrip calculates what each member consumed and compares it with what they paid. The difference becomes that member's balance. This rule is the foundation of the product rather than an edge case layered onto an equal-split calculator.
+## The problem
+Equal splits break down when people order different items, skip activities or fund the same bill together. A fair calculation needs separate payment and consumption records.
 
-## Product Decisions
-**Item-level participation over blanket equal splitting.** Consumers are attached to items so mixed participation remains accurate.
+## MVP and user flow
+Create a trip → add members → enter items and their consumers → record one or more payers → review the allocation → save → inspect balances → record and confirm repayments.
 
-**Multiple payers are first-class.** One expense can be funded by more than one person.
+- Item-level participation.
+- Multiple payers on one expense.
+- Tax, service and other fee allocation.
+- Member balances and settlement suggestions.
+- Full or partial repayments with confirmation.
+- Trip and expense history.
 
-**Settlement is separate from spending.** Paying back a friend changes balances without rewriting the original expense history.
+## Business rules and product decisions
+**Paid ≠ Consumed.** A member's position compares what they funded with their allocated consumption.
 
-## Tech Stack
-HTML, CSS, vanilla JavaScript, browser Local Storage, Google Analytics 4, and GitHub Pages.
+**Participation belongs to the item.** Skipping an item should not require an exception to a blanket equal split.
 
-## Current Scope
-This is a functional product prototype, not a production financial application. It has no user accounts, cloud sync, payment processing, or shared real-time trip state yet.
+**Repayment is a separate record.** Settlement changes the balance while preserving the original expense history; confirmation distinguishes a recorded payment from an accepted one.
 
-## Roadmap Opportunities
-- Shared accounts and cloud synchronization
-- Invite links for trip members
-- Receipt capture and assisted item entry
-- Multiple currencies and exchange-rate handling
-- Settlement reminders and payment integrations
-- Richer trip summaries and exports
+## Validation
+Live flow checked on 6 October 2026. A **240 SAR** shared item with three consumers and two **120 SAR** payers produced positions of **+40, +40 and −80 SAR**, and two repayment suggestions of **40 SAR**. A **20 SAR** partial settlement was recorded and confirmed.
 
-## About This Project
-SplitTrip was built as a product exercise around a deceptively complex business rule: accurately reconcile **who paid, who consumed, and who owes whom**.
+## Measurement and current limits
+The prototype includes GA4 instrumentation; no adoption or outcome metrics are claimed. Records persist locally in the browser. There are no shared accounts, real-time collaboration, currency conversion or actual money transfers.
 
-**Built by Hassan Mohamed Saber**
+---
+Built by **Hassan Mohamed Saber** · Product portfolio
